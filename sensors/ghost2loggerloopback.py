@@ -1,5 +1,5 @@
 """
-Copyright 2017 David Gee
+Copyright 2017 David Gee.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,11 +18,12 @@ limitations under the License.
 # See ../requirements.txt
 
 
-import json
-import base64
+# import json
+# from requests.auth import HTTPBasicAuth
+# import base64
 import requests
-from requests.auth import HTTPBasicAuth
 from st2reactor.sensor.base import PollingSensor
+
 
 class Ghost2loggerLoopback(PollingSensor):
     """This Sensor sets up the GhOST2Logger Service base information."""
@@ -36,18 +37,15 @@ class Ghost2loggerLoopback(PollingSensor):
 
         self._username = self._config.get('username', 'admin')
         self._password = self._config.get('password', 'admin')
-        self._authkey = self._username + ":" + self._password
-        self._authkey = base64.b64encode(self._authkey)
-        self._authkey = "Basic " + self._authkey
-        self._logger.info('[Ghost2logger] authkey = ' + self._authkey)
+        # self._authkey = self._username + ":" + self._password
+        # self._authkey = base64.b64encode(self._authkey)
+        # self._authkey = "Basic " + self._authkey
+        # self._logger.info('[Ghost2logger] authkey = ' + self._authkey)
         self._st2_api_key = self._config.get('st2_api_key', None)
-        self._st2url = self._config.get('st2url',
-                                        'http://127.0.0.1:9101/v1/\
-                                            rules/?limit=10&pack=\
-                                            ghost2logger')
+        self._st2url = self._config.get('st2url')
 
-        self._ghost_listen_ip = self._config.get('ghost_ip', '0.0.0.0')
-        self._ghost_listen_port = self._config.get('ghost_port', 12023)
+        self._ghost_listen_ip = self._config.get('ghost_ip')
+        self._ghost_listen_port = self._config.get('ghost_port')
 
         if self._ghost_listen_ip == '0.0.0.0':
             self._ghost_url = 'http://127.0.0.1:' + \
@@ -96,7 +94,6 @@ class Ghost2loggerLoopback(PollingSensor):
         _output_copy = r.json()
         self._process_rules(_output_copy)
 
-
     def cleanup(self):
         """Stuff."""
         pass
@@ -118,7 +115,7 @@ class Ghost2loggerLoopback(PollingSensor):
         # self._rules = {"1.1.1.1": ["thing", "boobs"]}
         _new = {}
 
-        _output = json.dumps(rules_payload)
+        # _output = json.dumps(rules_payload)
 
         try:
             # 1. Sort rules in to rule dictionary
@@ -173,27 +170,28 @@ class Ghost2loggerLoopback(PollingSensor):
                 # Once we've done this, the rules are the same
             self._rules = _new
         except Exception as e:
-            self._logger.info('[Ghost2logger]: Issue with parsing rules')
+            self._logger.info('[Ghost2logger]: Issue with parsing rules: '
+                              + str(e))
             return
 
     def _rest_process(self, _json):
         # Let's deal with the JSON API calls here
         self._logger.info('[Ghost2logger]: ' + str(_json))
 
-        HEADERS = {"Authorization": self._authkey,
-                   "Content-Type": 'application/json'}
+        HEADERS = {"Content-Type": 'application/json'}
 
         _URL = self._ghost_url + "/v1/"
-        r = requests.put(_URL, headers=HEADERS, verify=False, json=_json)
+        requests.put(_URL, headers=HEADERS, verify=False, json=_json,
+                     auth=(self._username, self._password))
 
     def _ghost2loggergetGUID(self):
         # Let's deal with the JSON API calls here
 
-        HEADERS = {"Authorization": self._authkey,
-                   "Content-Type": 'application/json'}
+        HEADERS = {"Content-Type": 'application/json'}
 
         _URL = self._ghost_url + "/v1/guid"
-        r = requests.get(_URL, headers=HEADERS, verify=False)
+        r = requests.get(_URL, headers=HEADERS, verify=False,
+                         auth=(self._username, self._password))
         _data = r.json()
         if _data['host'] == "GUID":
             for _item in _data['pattern']:
@@ -207,11 +205,11 @@ class Ghost2loggerLoopback(PollingSensor):
         # Let's deal with the JSON API calls here
         self._logger.info('[Ghost2logger]: Purge Ghost2logger')
 
-        HEADERS = {"Authorization": self._authkey,
-                   "Content-Type": 'application/json'}
+        HEADERS = {"Content-Type": 'application/json'}
 
         _URL = self._ghost_url + "/v1/all"
-        r = requests.delete(_URL, headers=HEADERS, verify=False)
+        r = requests.delete(_URL, headers=HEADERS, verify=False,
+                            auth=(self._username, self._password))
 
         _data = r.json()
         self._logger.info('[Ghost2logger]: Purged ghost2logger' + str(_data))
