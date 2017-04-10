@@ -49,7 +49,7 @@ This ```config.yaml``` which lives in the StackStorm ```/opt/stackstorm/configs`
 As the Ghost2logger component is written in Golang (hence the name - Go ST2 Logger - Ghost looks far cooler), we can run the binary in one of two ways:
 
 *	In the foreground under 'screen'. Start the service running then dettach
-or
+or run as a service:
 *	Copy the /opt/stackstorm/packs/ghost2logger/bin/ghost2logger.service to /etc/systemd/system
 	Check that the service can be read: ```systemctl is-active ghost2logger.service```
 	Start the service ```systemctl start ghost2logger.service```
@@ -109,6 +109,6 @@ This is in the alpha stage at the moment. Please use the pack in non-critical sc
 I'll continue working on it in the background and honing it's abilities.
 
 [Email me](mailto:david.gee@ipengineer.net) for more information or if you want to contribute.
-
+You can also check [this link](https://www.youtube.com/watch?v=JnxoNuIs2hE) out which shows the Ghost2logger pack working!
 
 

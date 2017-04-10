@@ -35,8 +35,8 @@ class Ghost2loggerLoopback(PollingSensor):
 
         self._logger = self._sensor_service.get_logger(__name__)
 
-        self._username = self._config.get('username', 'admin')
-        self._password = self._config.get('password', 'admin')
+        self._username = self._config.get('username')
+        self._password = self._config.get('password')
         # self._authkey = self._username + ":" + self._password
         # self._authkey = base64.b64encode(self._authkey)
         # self._authkey = "Basic " + self._authkey
